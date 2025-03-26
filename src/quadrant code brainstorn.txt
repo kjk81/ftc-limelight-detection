@@ -1,0 +1,14 @@
+llpython = [0, -1, 0, 0]
+
+use the section of the pipeline where the center is drawn (moments) to determine contour position
+
+width, height = frame.shape[:2]
+
+if cx (contour x) less than a quadrant width amount like (width / 3):
+	llpython[3] = left quadrant (encoded as int)
+
+# quadrant logic
+width, height = image.shape[:2]                
+highQuadrantBoundary = 
+lowQuadrantBoundary = 
+if cY < 

@@ -1,0 +1,5 @@
+sample scorers:
+oakton 226 - high basket auton, fast
+3535 - mid
+1096 - mid
+6417 - good, versatile

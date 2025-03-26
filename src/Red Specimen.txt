@@ -1,0 +1,95 @@
+Red Specimen
+import cv2
+import numpy as np
+
+def runPipeline(image, llrobot):
+    # Initialize variables
+    largestContour = np.array([[]])
+    llpython = [0, 0, 0, 0, 0, 0, 0, 0]
+    
+    # Convert BGR to HSV
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    
+    # Define range of red color in HSV
+    lower_red1 = np.array([0, 120, 70])  # Adjusted lower range
+    upper_red1 = np.array([10, 255, 255])  # Adjusted upper range
+    lower_red2 = np.array([170, 120, 70])  # Second red range
+    upper_red2 = np.array([180, 255, 255])  # Second red range
+    
+    # Create a mask for red color
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    mask = cv2.bitwise_or(mask1, mask2)
+    
+    # Morphological operations to clean up the mask
+    kernel = np.ones((3, 3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    
+    # Filter out large areas (e.g., entire frame) with contour area thresholds
+    height, width = mask.shape
+    max_area = 95000
+    big_area = 70000
+    min_area = 30000  # Ignore very small contours
+
+    # Find contours
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # Process contours
+    rectangles = []
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        if area < min_area:
+            # if the detected area is too small, skip
+            continue
+        elif area > max_area:
+            # if the detected area is too large, skip
+            continue
+        
+        # Get rotated rectangle
+        rect = cv2.minAreaRect(contour)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        
+        # Aspect ratio filtering
+        width = min(rect[1])
+        height = max(rect[1])
+        aspect_ratio = float(width) / height
+        if 0.3 < aspect_ratio < 0.8:  # Adjust aspect ratio limits as needed
+            rectangles.append(box)
+        
+    
+    # Draw rectangles and label detected samples
+    for i, rectangle in enumerate(rectangles):
+        text = "Sample"
+        if cv2.contourArea(rectangle) > big_area:
+            # multiple samples detected and touching each other
+            text = "Adjacent Samples"
+
+            #TODO: other logic to differentiate/seperate them
+            
+
+            pass
+        cv2.drawContours(image, [rectangle], 0, (0, 255, 0), 2)
+        
+        # Get center of the rectangle
+        M = cv2.moments(rectangle)
+        if M["m00"] != 0:
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            
+            # Draw circle and label
+            cv2.circle(image, (cX, cY), 5, (255, 0, 0), -1)
+            cv2.putText(image, f"{text} {i+1}", (cX - 20, cY - 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    
+    # Update llpython with the number of rectangles found
+    llpython[0] = len(rectangles)
+    
+    # Add overall status text
+    cv2.putText(image, f"Found {len(rectangles)} samples", (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    
+    # Return results
+    orientation = 90  # Placeholder for orientation logic
+    return largestContour, image, llpython, orientation
