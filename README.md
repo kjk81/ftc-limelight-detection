@@ -10,7 +10,7 @@ This script also identifies the orientation of the detected contour relative to 
 I employed Python OpenCV, as well as NumPy!
 
 The hardest part of this project was figuring out how to distinguish multiple touching objects of the same color because color masks don't help in such a scenario - rather, size restrictions do.
-After testing various size limitations, as well as specifying the size ranges that might include multiple samples (not a single one), the script can completely distinguish a set of multiple touching objects and single objects, but because of the harsh limits needed for sizing and the fact that some touching objects, if parallel to one another, take up less space, it beces increasingly difficult and some sort of edge detection algorithm must take place in order to further differentiate.
+After testing various size limitations, as well as specifying the size ranges that might include multiple samples (not a single one), the script can completely distinguish a set of multiple touching objects and single objects, but because of the harsh limits needed for sizing and the fact that some touching objects, if parallel to one another, take up less space, it becomes increasingly difficult and some sort of edge detection algorithm must take place in order to further differentiate.
 
 # Further Action To Be Taken
 The case of two same-color, touching, and parallel objects can be fixed through the implementation of some sort of edge detection algorithm and potentially more masks that artificially create space between the two.
